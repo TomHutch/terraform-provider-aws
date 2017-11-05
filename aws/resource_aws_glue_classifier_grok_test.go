@@ -2,6 +2,7 @@ package aws
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -40,6 +41,21 @@ func TestAccAWSGlueClassifierGrok_basic(t *testing.T) {
 						"custom_patterns",
 						"my_custom_pattern",
 					),
+					resource.TestMatchResourceAttr(
+						name,
+						"creation_time",
+						regexp.MustCompile("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\+\\d{4}$"),
+					),
+					resource.TestMatchResourceAttr(
+						name,
+						"last_updated",
+						regexp.MustCompile("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\+\\d{4}$"),
+					),
+					resource.TestMatchResourceAttr(
+						name,
+						"version",
+						regexp.MustCompile("^\\d+$"),
+					),
 				),
 			},
 		},
@@ -72,10 +88,10 @@ func testAccCheckGlueClassifierGrokDestroy(s *terraform.State) error {
 
 func testAccGlueClassifierGrok_basic(rInt int) string {
 	return fmt.Sprintf(`
-resource "aws_glue_classifier_grok" "my-grok-classifier" {
-  name = "test_classifier_%d"
-  classification = "my_classification"
-  grok_pattern = "my_grok_pattern"
+resource "aws_glue_classifier_grok" "test" {
+  name            = "test_classifier_%d"
+  classification  = "my_classification"
+  grok_pattern    = "my_grok_pattern"
   custom_patterns = "my_custom_pattern"
 }
 `, rInt)
