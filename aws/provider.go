@@ -186,6 +186,7 @@ func Provider() terraform.ResourceProvider {
 			"aws_eip":                        dataSourceAwsEip(),
 			"aws_elastic_beanstalk_solution_stack": dataSourceAwsElasticBeanstalkSolutionStack(),
 			"aws_elasticache_cluster":              dataSourceAwsElastiCacheCluster(),
+			"aws_elb":                              dataSourceAwsElb(),
 			"aws_elasticache_replication_group":    dataSourceAwsElasticacheReplicationGroup(),
 			"aws_elb_hosted_zone_id":               dataSourceAwsElbHostedZoneId(),
 			"aws_elb_service_account":              dataSourceAwsElbServiceAccount(),
@@ -198,12 +199,14 @@ func Provider() terraform.ResourceProvider {
 			"aws_iam_user":                         dataSourceAwsIAMUser(),
 			"aws_internet_gateway":                 dataSourceAwsInternetGateway(),
 			"aws_instance":                         dataSourceAwsInstance(),
+			"aws_instances":                        dataSourceAwsInstances(),
 			"aws_ip_ranges":                        dataSourceAwsIPRanges(),
 			"aws_kinesis_stream":                   dataSourceAwsKinesisStream(),
 			"aws_kms_alias":                        dataSourceAwsKmsAlias(),
 			"aws_kms_ciphertext":                   dataSourceAwsKmsCiphertext(),
 			"aws_kms_secret":                       dataSourceAwsKmsSecret(),
 			"aws_nat_gateway":                      dataSourceAwsNatGateway(),
+			"aws_network_interface":                dataSourceAwsNetworkInterface(),
 			"aws_partition":                        dataSourceAwsPartition(),
 			"aws_prefix_list":                      dataSourceAwsPrefixList(),
 			"aws_rds_cluster":                      dataSourceAwsRdsCluster(),
@@ -261,6 +264,7 @@ func Provider() terraform.ResourceProvider {
 			"aws_app_cookie_stickiness_policy":             resourceAwsAppCookieStickinessPolicy(),
 			"aws_appautoscaling_target":                    resourceAwsAppautoscalingTarget(),
 			"aws_appautoscaling_policy":                    resourceAwsAppautoscalingPolicy(),
+			"aws_appautoscaling_scheduled_action":          resourceAwsAppautoscalingScheduledAction(),
 			"aws_athena_database":                          resourceAwsAthenaDatabase(),
 			"aws_athena_named_query":                       resourceAwsAthenaNamedQuery(),
 			"aws_autoscaling_attachment":                   resourceAwsAutoscalingAttachment(),
@@ -278,6 +282,7 @@ func Provider() terraform.ResourceProvider {
 			"aws_cloudwatch_log_destination_policy":        resourceAwsCloudWatchLogDestinationPolicy(),
 			"aws_cloudwatch_log_group":                     resourceAwsCloudWatchLogGroup(),
 			"aws_cloudwatch_log_metric_filter":             resourceAwsCloudWatchLogMetricFilter(),
+			"aws_cloudwatch_log_resource_policy":           resourceAwsCloudWatchLogResourcePolicy(),
 			"aws_cloudwatch_log_stream":                    resourceAwsCloudWatchLogStream(),
 			"aws_cloudwatch_log_subscription_filter":       resourceAwsCloudwatchLogSubscriptionFilter(),
 			"aws_config_config_rule":                       resourceAwsConfigConfigRule(),
@@ -286,6 +291,7 @@ func Provider() terraform.ResourceProvider {
 			"aws_config_delivery_channel":                  resourceAwsConfigDeliveryChannel(),
 			"aws_cognito_identity_pool":                    resourceAwsCognitoIdentityPool(),
 			"aws_cognito_identity_pool_roles_attachment":   resourceAwsCognitoIdentityPoolRolesAttachment(),
+			"aws_cognito_user_pool":                        resourceAwsCognitoUserPool(),
 			"aws_autoscaling_lifecycle_hook":               resourceAwsAutoscalingLifecycleHook(),
 			"aws_cloudwatch_metric_alarm":                  resourceAwsCloudWatchMetricAlarm(),
 			"aws_cloudwatch_dashboard":                     resourceAwsCloudWatchDashboard(),
@@ -313,6 +319,7 @@ func Provider() terraform.ResourceProvider {
 			"aws_dms_replication_task":                     resourceAwsDmsReplicationTask(),
 			"aws_dx_lag":                                   resourceAwsDxLag(),
 			"aws_dx_connection":                            resourceAwsDxConnection(),
+			"aws_dx_connection_association":                resourceAwsDxConnectionAssociation(),
 			"aws_dynamodb_table":                           resourceAwsDynamoDbTable(),
 			"aws_ebs_snapshot":                             resourceAwsEbsSnapshot(),
 			"aws_ebs_volume":                               resourceAwsEbsVolume(),
@@ -398,6 +405,9 @@ func Provider() terraform.ResourceProvider {
 			"aws_load_balancer_listener_policy":            resourceAwsLoadBalancerListenerPolicies(),
 			"aws_lb_ssl_negotiation_policy":                resourceAwsLBSSLNegotiationPolicy(),
 			"aws_main_route_table_association":             resourceAwsMainRouteTableAssociation(),
+			"aws_mq_broker":                                resourceAwsMqBroker(),
+			"aws_mq_configuration":                         resourceAwsMqConfiguration(),
+			"aws_media_store_container":                    resourceAwsMediaStoreContainer(),
 			"aws_nat_gateway":                              resourceAwsNatGateway(),
 			"aws_network_acl":                              resourceAwsNetworkAcl(),
 			"aws_default_network_acl":                      resourceAwsDefaultNetworkAcl(),
@@ -456,6 +466,8 @@ func Provider() terraform.ResourceProvider {
 			"aws_default_security_group":                   resourceAwsDefaultSecurityGroup(),
 			"aws_security_group_rule":                      resourceAwsSecurityGroupRule(),
 			"aws_servicecatalog_portfolio":                 resourceAwsServiceCatalogPortfolio(),
+			"aws_service_discovery_private_dns_namespace":  resourceAwsServiceDiscoveryPrivateDnsNamespace(),
+			"aws_service_discovery_public_dns_namespace":   resourceAwsServiceDiscoveryPublicDnsNamespace(),
 			"aws_simpledb_domain":                          resourceAwsSimpleDBDomain(),
 			"aws_ssm_activation":                           resourceAwsSsmActivation(),
 			"aws_ssm_association":                          resourceAwsSsmAssociation(),
@@ -554,6 +566,8 @@ func init() {
 			"being executed. If the API request still fails, an error is\n" +
 			"thrown.",
 
+		"apigateway_endpoint": "Use this to override the default endpoint URL constructed from the `region`.\n",
+
 		"cloudformation_endpoint": "Use this to override the default endpoint URL constructed from the `region`.\n",
 
 		"cloudwatch_endpoint": "Use this to override the default endpoint URL constructed from the `region`.\n",
@@ -573,6 +587,8 @@ func init() {
 		"kms_endpoint": "Use this to override the default endpoint URL constructed from the `region`.\n",
 
 		"iam_endpoint": "Use this to override the default endpoint URL constructed from the `region`.\n",
+
+		"lambda_endpoint": "Use this to override the default endpoint URL constructed from the `region`\n",
 
 		"ec2_endpoint": "Use this to override the default endpoint URL constructed from the `region`.\n",
 
@@ -668,6 +684,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 
 	for _, endpointsSetI := range endpointsSet.List() {
 		endpoints := endpointsSetI.(map[string]interface{})
+		config.ApigatewayEndpoint = endpoints["apigateway"].(string)
 		config.CloudFormationEndpoint = endpoints["cloudformation"].(string)
 		config.CloudWatchEndpoint = endpoints["cloudwatch"].(string)
 		config.CloudWatchEventsEndpoint = endpoints["cloudwatchevents"].(string)
@@ -679,6 +696,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		config.IamEndpoint = endpoints["iam"].(string)
 		config.KinesisEndpoint = endpoints["kinesis"].(string)
 		config.KmsEndpoint = endpoints["kms"].(string)
+		config.LambdaEndpoint = endpoints["lambda"].(string)
 		config.RdsEndpoint = endpoints["rds"].(string)
 		config.S3Endpoint = endpoints["s3"].(string)
 		config.SnsEndpoint = endpoints["sns"].(string)
@@ -740,6 +758,12 @@ func endpointsSchema() *schema.Schema {
 		Optional: true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
+				"apigateway": {
+					Type:        schema.TypeString,
+					Optional:    true,
+					Default:     "",
+					Description: descriptions["apigateway_endpoint"],
+				},
 				"cloudwatch": {
 					Type:        schema.TypeString,
 					Optional:    true,
@@ -808,6 +832,12 @@ func endpointsSchema() *schema.Schema {
 					Default:     "",
 					Description: descriptions["kms_endpoint"],
 				},
+				"lambda": {
+					Type:        schema.TypeString,
+					Optional:    true,
+					Default:     "",
+					Description: descriptions["lambda_endpoint"],
+				},
 				"rds": {
 					Type:        schema.TypeString,
 					Optional:    true,
@@ -841,6 +871,7 @@ func endpointsSchema() *schema.Schema {
 func endpointsToHash(v interface{}) int {
 	var buf bytes.Buffer
 	m := v.(map[string]interface{})
+	buf.WriteString(fmt.Sprintf("%s-", m["apigateway"].(string)))
 	buf.WriteString(fmt.Sprintf("%s-", m["cloudwatch"].(string)))
 	buf.WriteString(fmt.Sprintf("%s-", m["cloudwatchevents"].(string)))
 	buf.WriteString(fmt.Sprintf("%s-", m["cloudwatchlogs"].(string)))
@@ -852,6 +883,7 @@ func endpointsToHash(v interface{}) int {
 	buf.WriteString(fmt.Sprintf("%s-", m["elb"].(string)))
 	buf.WriteString(fmt.Sprintf("%s-", m["kinesis"].(string)))
 	buf.WriteString(fmt.Sprintf("%s-", m["kms"].(string)))
+	buf.WriteString(fmt.Sprintf("%s-", m["lambda"].(string)))
 	buf.WriteString(fmt.Sprintf("%s-", m["rds"].(string)))
 	buf.WriteString(fmt.Sprintf("%s-", m["s3"].(string)))
 	buf.WriteString(fmt.Sprintf("%s-", m["sns"].(string)))
