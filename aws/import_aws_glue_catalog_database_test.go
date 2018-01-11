@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func TestAccAWSGlueCatalogDatabaseVault_importBasic(t *testing.T) {
+func TestAccAWSGlueCatalogDatabase_importBasic(t *testing.T) {
 	resourceName := "aws_glue_catalog_database.test"
 	rInt := acctest.RandInt()
 
@@ -16,11 +16,10 @@ func TestAccAWSGlueCatalogDatabaseVault_importBasic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckGlueDatabaseDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testAccGlueCatalogDatabase_basic(rInt),
+			{
+				Config: testAccGlueCatalogDatabase_full(rInt, "A test catalog from terraform"),
 			},
-
-			resource.TestStep{
+			{
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
