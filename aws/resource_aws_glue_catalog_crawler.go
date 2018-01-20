@@ -22,13 +22,13 @@ func resourceAwsGlueCatalogCrawler() *schema.Resource {
 				ForceNew: true,
 				Required: true,
 			},
+			"role": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
 			"database_name": {
 				Type:     schema.TypeString,
 				ForceNew: true,
-				Required: true,
-			},
-			"role": {
-				Type:     schema.TypeString,
 				Required: true,
 			},
 			//"description": {
@@ -68,45 +68,45 @@ func resourceAwsGlueCatalogCrawler() *schema.Resource {
 			//	Type:     schema.TypeString,
 			//	Optional: true,
 			//},
-			"targets": {
-				Type:     schema.TypeSet,
-				Required: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"jdbc_targets": {
-							Type:     schema.TypeSet,
-							Optional: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"connection_name": {
-										Type: schema.TypeString,
-									},
-									"path": {
-										Type: schema.TypeString,
-									},
-									"exclusions": {
-										Type: schema.TypeList,
-									},
-								},
-							},
-						},
-						"s3_targets": {
-							Type:     schema.TypeSet,
-							Optional: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"path": {
-										Type: schema.TypeList,
-									},
-									"exclusions": {
-										Type: schema.TypeList,
-									},
-								},
-							},
-						},
-					},
-				},
-			},
+			//"targets": {
+			//	Type:     schema.TypeSet,
+			//	Required: true,
+			//	Elem: &schema.Resource{
+			//		Schema: map[string]*schema.Schema{
+			//			"jdbc_targets": {
+			//				Type:     schema.TypeSet,
+			//				Optional: true,
+			//				Elem: &schema.Resource{
+			//					Schema: map[string]*schema.Schema{
+			//						"connection_name": {
+			//							Type: schema.TypeString,
+			//						},
+			//						"path": {
+			//							Type: schema.TypeString,
+			//						},
+			//						"exclusions": {
+			//							Type: schema.TypeList,
+			//						},
+			//					},
+			//				},
+			//			},
+			//			"s3_targets": {
+			//				Type:     schema.TypeSet,
+			//				Optional: true,
+			//				Elem: &schema.Resource{
+			//					Schema: map[string]*schema.Schema{
+			//						"path": {
+			//							Type: schema.TypeList,
+			//						},
+			//						"exclusions": {
+			//							Type: schema.TypeList,
+			//						},
+			//					},
+			//				},
+			//			},
+			//		},
+			//	},
+			//},
 			//"configuration": {
 			//	Type:             schema.TypeString,
 			//	Optional:         true,
