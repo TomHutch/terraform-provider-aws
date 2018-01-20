@@ -85,13 +85,44 @@ func testAccCheckGlueCrawlerDestroy(s *terraform.State) error {
 
 func testAccGlueCralwer_basic(rInt int) string {
 	return fmt.Sprintf(`
+resource "aws_iam_role" "test-role" {
+  name = "my_test_role_%d"
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": ["glue.amazonaws.com"]
+      },
+      "Effect": "Allow"
+    }
+  ]
+}
+EOF
+  path = "/service-role/"
+}
+
+resource "aws_iam_policy_attachment" "test-attachment" {
+  name = "test-attachment"
+  roles = ["${aws_iam_role.test-role.name}"]
+  policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
+}
+
+resource "aws_glue_catalog_database" "test" {
+  name = "my_test_catalog_database_%d"
+}
+
 resource "aws_glue_crawler" "test" {
   name          = "my_test_crawler_%s"
-  role          = "arn:aws:iam::123456789012:role/GlueCrawlerAccess"
-  database_name = "my_test_db"
+  role          = "${aws_iam_role.test-role.arn}"
+  database_name = "${aws_glue_catalog_database.test.arn}"
 }
-`, rInt)
+`, rInt, rInt, rInt)
 }
+
+//policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
 
 func testAccCheckGlueCrawlerExists(name string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
